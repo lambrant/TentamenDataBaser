@@ -25,7 +25,7 @@ public partial class StoredProcedures
         SqlParameter dateParam = new SqlParameter();
         dateParam.Value = date;
         dateParam.Direction = ParameterDirection.Input;
-        dateParam.SqlDbType = SqlDbType.Date;
+        dateParam.SqlDbType = SqlDbType.NVarChar;
         dateParam.ParameterName = "@date";
         cmd.Parameters.Add(dateParam);
 
@@ -71,7 +71,7 @@ public partial class StoredProcedures
         SqlParameter nameParam = new SqlParameter();
         nameParam.Value = name;
         nameParam.Direction = ParameterDirection.Input;
-        nameParam.SqlDbType = SqlDbType.Date;
+        nameParam.SqlDbType = SqlDbType.NVarChar;
         nameParam.ParameterName = "@name";
         cmd.Parameters.Add(nameParam);
 
@@ -99,8 +99,40 @@ public partial class StoredProcedures
     }
 
     [SqlProcedure]
-    public static void NrOfMoviesInCertainCategory()
+    public static SqlInt32 NrOfMoviesInCertainCategory(SqlString category)
     {
+        SqlConnection conn = new SqlConnection();
+        conn.ConnectionString = "Context Connection=true";
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = conn;
 
+        int temp;
+        bool isNaN = Int32.TryParse(category.ToString(), out temp);
+
+        if (category.ToString() == "" || category == null || !isNaN)
+        {
+            return 0;
+        }
+
+        SqlParameter categoryParam = new SqlParameter();
+        categoryParam.Value = category;
+        categoryParam.Direction = ParameterDirection.Input;
+        categoryParam.SqlDbType = SqlDbType.NVarChar;
+        categoryParam.ParameterName = "@category";
+        cmd.Parameters.Add(categoryParam);
+
+        cmd.CommandText = "SELECT COUNT(*) AS NrOfMoviesInCategory, " +
+                          "c.movieCategory " +
+                          "FROM Movie AS mo " +
+                          "JOIN Category AS c ON mo.categoryID = c.categoryID " +
+                          "WHERE c.movieCategory = @category " +
+                          "GROUP BY c.movieCategory";
+
+        conn.Open();
+        SqlContext.Pipe.ExecuteAndSend(cmd);
+        conn.Close();
+        conn.Dispose();
+        cmd.Dispose();
+        return 1;
     }
 }
