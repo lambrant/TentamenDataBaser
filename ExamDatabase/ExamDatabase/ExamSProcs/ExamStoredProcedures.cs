@@ -17,7 +17,7 @@ public partial class StoredProcedures
         int temp;
         bool isNaN = Int32.TryParse(date.ToString(), out temp);
 
-        if (date.ToString() == "" || date == null || !isNaN || temp < 0 || temp > 10)
+        if (date.ToString() == "" || date == null || isNaN)
         {
             return 0;
         }
@@ -63,7 +63,7 @@ public partial class StoredProcedures
         int temp;
         bool isNaN = Int32.TryParse(name.ToString(), out temp);
 
-        if (name.ToString() == "" || name == null || !isNaN)
+        if (name.ToString() == "" || name == null || isNaN)
         {
             return 0;
         }
@@ -80,7 +80,7 @@ public partial class StoredProcedures
                           "r.rentalDate, " + 
                           "r.returnDate, " +
                           "SUM((DATEDIFF(day, r.rentalDate, r.returnDate) * r.costPerDay)) AS totalCost, " +
-                          "COUNT(*) AS NrOfMovies" +
+                          "COUNT(*) AS NrOfMovies " +
 	                      "FROM Member AS m " +
                           "JOIN Rental AS r ON m.memberID = r.memberID " +
                           "JOIN Movie AS mo ON r.rentalID = mo.rentalID " +
@@ -109,7 +109,7 @@ public partial class StoredProcedures
         int temp;
         bool isNaN = Int32.TryParse(category.ToString(), out temp);
 
-        if (category.ToString() == "" || category == null || !isNaN)
+        if (category.ToString() == "" || category == null || isNaN)
         {
             return 0;
         }
