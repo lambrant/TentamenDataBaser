@@ -17,7 +17,7 @@ public partial class StoredProcedures
         int temp;
         bool isNaN = Int32.TryParse(date.ToString(), out temp);
 
-        if (date.ToString() == "" || date == null || isNaN)
+        if (date.ToString() == "" || date == null || !isNaN)
         {
             return 0;
         }
