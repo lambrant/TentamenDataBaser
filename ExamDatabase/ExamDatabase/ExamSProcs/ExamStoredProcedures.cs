@@ -6,13 +6,21 @@ using Microsoft.SqlServer.Server;
 
 public partial class StoredProcedures
 {
-    [Microsoft.SqlServer.Server.SqlProcedure]
+    [SqlProcedure]
     public static SqlInt32 ListOfMoviesBackOnCertainDate (SqlString date)
     {
         SqlConnection conn = new SqlConnection();
         conn.ConnectionString = "Context Connection=true";
         SqlCommand cmd = new SqlCommand();
         cmd.Connection = conn;
+
+        int temp;
+        bool isNaN = Int32.TryParse(date.ToString(), out temp);
+
+        if (date.ToString() == "" || date == null || isNaN || temp < 0 || temp > 10)
+        {
+            return 0;
+        }
 
         SqlParameter dateParam = new SqlParameter();
         dateParam.Value = date;
@@ -44,13 +52,13 @@ public partial class StoredProcedures
         return 1;
     }
 
-    [Microsoft.SqlServer.Server.SqlProcedure]
+    [SqlProcedure]
     public static void MembersMovieListToReturn()
     {
                 
     }
 
-    [Microsoft.SqlServer.Server.SqlProcedure]
+    [SqlProcedure]
     public static void NrOfMoviesInCertainCategory()
     {
 
