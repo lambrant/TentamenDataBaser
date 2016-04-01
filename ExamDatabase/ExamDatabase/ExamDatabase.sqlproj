@@ -67,4 +67,7 @@
   <ItemGroup>
     <Compile Include="ExamSProcs\ExamStoredProcedures.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ExamDatabase.publish.xml" />
+  </ItemGroup>
 </Project>
