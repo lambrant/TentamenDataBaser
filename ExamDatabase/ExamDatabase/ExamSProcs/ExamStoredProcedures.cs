@@ -17,7 +17,7 @@ public partial class StoredProcedures
         int temp;
         bool isNaN = Int32.TryParse(date.ToString(), out temp);
 
-        if (date.ToString() == "" || date == null || isNaN || temp < 0 || temp > 10)
+        if (date.ToString() == "" || date == null || !isNaN || temp < 0 || temp > 10)
         {
             return 0;
         }
@@ -53,9 +53,49 @@ public partial class StoredProcedures
     }
 
     [SqlProcedure]
-    public static void MembersMovieListToReturn()
+    public static SqlInt32 MembersMovieListToReturn(SqlString name)
     {
-                
+        SqlConnection conn = new SqlConnection();
+        conn.ConnectionString = "Context Connection=true";
+        SqlCommand cmd = new SqlCommand();
+        cmd.Connection = conn;
+
+        int temp;
+        bool isNaN = Int32.TryParse(name.ToString(), out temp);
+
+        if (name.ToString() == "" || name == null || !isNaN)
+        {
+            return 0;
+        }
+
+        SqlParameter nameParam = new SqlParameter();
+        nameParam.Value = name;
+        nameParam.Direction = ParameterDirection.Input;
+        nameParam.SqlDbType = SqlDbType.Date;
+        nameParam.ParameterName = "@name";
+        cmd.Parameters.Add(nameParam);
+
+        cmd.CommandText = "SELECT m.firstName, " +
+                          "m.lastName, " +
+                          "r.rentalDate, " + 
+                          "r.returnDate, " +
+                          "SUM((DATEDIFF(day, r.rentalDate, r.returnDate) * r.costPerDay)) AS totalCost, " +
+                          "COUNT(*) AS NrOfMovies" +
+	                      "FROM Member AS m " +
+                          "JOIN Rental AS r ON m.memberID = r.memberID " +
+                          "JOIN Movie AS mo ON r.rentalID = mo.rentalID " +
+                          "WHERE m.firstName = @name " +
+                          "GROUP BY m.firstName, " +
+                          "m.lastName, " +
+                          "r.rentalDate, " + 
+                          "r.returnDate";	   
+
+        conn.Open();
+        SqlContext.Pipe.ExecuteAndSend(cmd);
+        conn.Close();
+        conn.Dispose();
+        cmd.Dispose();
+        return 1;
     }
 
     [SqlProcedure]
